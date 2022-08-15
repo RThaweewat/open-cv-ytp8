@@ -21,10 +21,8 @@ option = st.selectbox(
 # Times
 now = datetime.now().time()
 now = str(now).replace(".", "_").replace(":", "_")
-
-mp_drawing = mp.solutions.drawing_utils
-mp_pose = mp.solutions.pose
-
+run = st.checkbox('Start')
+run_no = str(input())
 
 def calculate_angle(a, b, c):
     a = np.array(a)  # First
@@ -49,13 +47,6 @@ dtypes = np.dtype(
 
 df = pd.DataFrame(np.empty(0, dtype=dtypes))
 
-# cap = cv2.VideoCapture('tug (2) (1).mp4')
-run_no = str(input())
-
-
-FRAME_WINDOW = st.image([])
-cap = cv2.VideoCapture(option)
-
 # Curl counter variables
 counter = 0
 stage = None
@@ -67,12 +58,16 @@ prev_frame_time = 0
 new_frame_time = 0
 sit_count = []
 
-fourcc = cv2.VideoWriter_fourcc(*"MP4V")
-out = cv2.VideoWriter(f"output_{str(now)}.mp4", fourcc, 20.0, (640, 480))
-run = st.checkbox('Start')
+FRAME_WINDOW = st.image([])
+cap = cv2.VideoCapture(option)
 
 while run:
     ## Setup mediapipe instance
+    mp_drawing = mp.solutions.drawing_utils
+    mp_pose = mp.solutions.pose
+
+    fourcc = cv2.VideoWriter_fourcc(*"MP4V")
+    out = cv2.VideoWriter(f"output_{str(now)}.mp4", fourcc, 20.0, (640, 480))
     with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as pose:
         while cap.isOpened():
 
