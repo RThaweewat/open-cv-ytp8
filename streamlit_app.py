@@ -50,9 +50,11 @@ run_no = str(input())
 
 playsound(audio)
 time.sleep(1)
-
+option = st.selectbox(
+    'Select Video Capture CH.',
+    (0, 1, 2))
 FRAME_WINDOW = st.image([])
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(option)
 
 # Curl counter variables
 counter = 0
