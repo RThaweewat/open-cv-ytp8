@@ -7,11 +7,15 @@ import IPython
 from IPython.display import Audio
 import time
 from pathlib import Path
-from playsound import playsound
+# from playsound import playsound
 import gspread
 import streamlit as st
 
 st.title("Webcam Application")
+option = st.selectbox(
+    'Select Video Capture CH.',
+    (0, 1, 2))
+
 # audio = Path().cwd() / "test_2.wav"
 
 # Times
@@ -48,10 +52,7 @@ df = pd.DataFrame(np.empty(0, dtype=dtypes))
 # cap = cv2.VideoCapture('tug (2) (1).mp4')
 run_no = str(input())
 
-# playsound(audio)
-option = st.selectbox(
-    'Select Video Capture CH.',
-    (0, 1, 2))
+
 FRAME_WINDOW = st.image([])
 cap = cv2.VideoCapture(option)
 
