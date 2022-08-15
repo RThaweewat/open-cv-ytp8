@@ -203,7 +203,6 @@ while run:
 
             out.write(image)
             FRAME_WINDOW.image(image)
-            cv2.imshow("Mediapipe Feed", image)
 
             if cv2.waitKey(10) & 0xFF == ord("q"):
                 total_time = float("{0:.2f}".format(time.time() - start_time))
