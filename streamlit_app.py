@@ -7,16 +7,19 @@ import pandas as pd
 import IPython
 from IPython.display import Audio
 import time
+from functools import reduce
 from pathlib import Path
+
 # from playsound import playsound
 import gspread
+
 now = datetime.now().time()
 now = str(now).replace(".", "_").replace(":", "_")
 
-#run = st.checkbox('Start')
+# run = st.checkbox('Start')
 
 st.title("Webcam Live Feed")
-run_no = st.text_input('Run name')
+run_no = st.text_input("Run name")
 FRAME_WINDOW = st.image([])
 camera = cv2.VideoCapture(0)
 
@@ -26,6 +29,7 @@ mp_pose = mp.solutions.pose
 
 fourcc = cv2.VideoWriter_fourcc(*"MP4V")
 out = cv2.VideoWriter(f"output_{str(now)}.mp4", fourcc, 20.0, (640, 480))
+
 
 def calculate_angle(a, b, c):
     a = np.array(a)  # First
@@ -42,6 +46,11 @@ def calculate_angle(a, b, c):
 
     return angle
 
+
+def Average(lst):
+    return reduce(lambda a, b: a + b, lst) / len(lst)
+
+
 # Curl counter variables
 counter = 0
 stage = None
@@ -52,21 +61,24 @@ test = True
 prev_frame_time = 0
 new_frame_time = 0
 sit_count = []
-import os.path
+angle_sit = []
+angle_stand = []
+
+
 from os.path import exists as file_exists
 
-
 # Using NumPy
-if file_exists('data.csv'):
-    df = pd.read_csv('data.csv', index_col=0)
+if file_exists("data.csv"):
+    df = pd.read_csv("data.csv", index_col=0)
 else:
     dtypes = np.dtype(
         [
-            ("No", int),
+            ("Name", str),
+            ("Angle_sit_avg", float),
+            ("Angle_stand_avg", float),
             ("Total", str),
             ("Sit Total", str),
-            ("Time", str),
-            ("Name", str)
+            ("Time", str)
         ]
     )
     df = pd.DataFrame(np.empty(0, dtype=dtypes))
@@ -128,6 +140,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             if angle > 30:
                 stage = "sit"
                 sit_count.append(1)
+                angle_sit.append(angle)
 
             if stage == "sit" and angle < 15:
                 stage = "stand"
@@ -137,6 +150,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
                 sit_to_stand = float("{0:.2f}".format(counter - time_spare))
                 print("Sit to stand", sit_to_stand, "seconds")
                 time_spare = counter
+                angle_stand.append(angle)
                 sit_count.append(0)
 
         except:
@@ -214,14 +228,30 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             out.release()
             break
 
-st.write('Stopped')
+st.write("Stopped")
 
 # append dataframe
-df =  df.append({"No_Name": run_no
-                    , 'Name':f'output_{str(now)}_run_no{run_no}.mp4'
-                    , 'Sit Total': sit_to_stand
-                    , 'Total': str(now)
-                    , 'Time': total_time}, ignore_index=True)
+df = df.append(
+    {
+        "No_Name": f"output_{str(now)}_run_no{run_no}.mp4",
+        "Name": run_no,
+        "Sit Total": sit_to_stand,
+        "Total": str(now),
+        "Time": total_time,
+        "Angle_stand_avg": Average(angle_stand),
+        "Angle_sit_avg": Average(angle_sit),
+    },
+    ignore_index=True,
+)
 
 st.dataframe(df)
-df.to_csv('data.csv')
+df.to_csv("data.csv")
+
+
+
+# Added Gspread
+# Connect
+# Join VLookup
+# Go Run
+# Dashboard
+# Added GDrive
