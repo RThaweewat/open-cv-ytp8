@@ -1,3 +1,4 @@
+"""
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -213,13 +214,30 @@ while run:
 
         cap.release()
         cv2.destroyAllWindows()
-"""
+
 # append dataframe
 df =  df.append({"No_Name": run_no
 	                , 'Name':f'output_{str(now)}_run_no{run_no}.mp4'
 	                , 'Sit Total': sit_to_stand
 	                , 'Total': str(now)
 	                , 'Time': total_time}, ignore_index=True)
-"""
+
 
 print("run complete")
+
+"""
+
+import cv2
+import streamlit as st
+
+st.title("Webcam Live Feed")
+run = st.checkbox('Run')
+FRAME_WINDOW = st.image([])
+camera = cv2.VideoCapture(0)
+
+while run:
+    _, frame = camera.read()
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    FRAME_WINDOW.image(frame)
+else:
+    st.write('Stopped')
