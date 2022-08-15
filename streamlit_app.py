@@ -12,7 +12,7 @@ import gspread
 import streamlit as st
 
 st.title("Webcam Application")
-audio = Path().cwd() / "test_2.wav"
+# audio = Path().cwd() / "test_2.wav"
 
 # Times
 now = datetime.now().time()
@@ -48,8 +48,7 @@ df = pd.DataFrame(np.empty(0, dtype=dtypes))
 # cap = cv2.VideoCapture('tug (2) (1).mp4')
 run_no = str(input())
 
-playsound(audio)
-time.sleep(1)
+# playsound(audio)
 option = st.selectbox(
     'Select Video Capture CH.',
     (0, 1, 2))
