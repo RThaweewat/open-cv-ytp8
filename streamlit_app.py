@@ -4,11 +4,9 @@ import mediapipe as mp
 import numpy as np
 from datetime import datetime
 import pandas as pd
-import IPython
-from IPython.display import Audio
 import time
 from functools import reduce
-from pathlib import Path
+from os.path import exists as file_exists
 
 # from playsound import playsound
 import gspread
@@ -27,8 +25,8 @@ camera = cv2.VideoCapture(0)
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 
-fourcc = cv2.VideoWriter_fourcc(*"MP4V")
-out = cv2.VideoWriter(f"output_{str(now)}.mp4", fourcc, 20.0, (640, 480))
+fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+out = cv2.VideoWriter(f".\output\output_{str(now)}.mp4", fourcc, 20.0, (640, 480))
 
 
 def calculate_angle(a, b, c):
@@ -65,8 +63,6 @@ angle_sit = []
 angle_stand = []
 
 
-from os.path import exists as file_exists
-
 # Using NumPy
 if file_exists("data.csv"):
     df = pd.read_csv("data.csv", index_col=0)
@@ -90,12 +86,11 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
 
         # Recolor image to RGB
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        image.flags.writeable = False
+        image.flags.writeable = True
 
         # Make detection
         results = pose.process(image)
 
-        # Recolor back to BGR
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
@@ -220,6 +215,7 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
             total_time = float("{0:.2f}".format(time.time() - start_time))
             print("Total", total_time, "seconds")
             break
+
         elif sit_count[-2:] == [0, 1]:
             total_time = float("{0:.2f}".format(time.time() - start_time))
             print("Total", total_time, "seconds")
@@ -235,23 +231,23 @@ df = df.append(
     {
         "No_Name": f"output_{str(now)}_run_no{run_no}.mp4",
         "Name": run_no,
-        "Sit Total": sit_to_stand,
+        "Sit Total": round(sit_to_stand),
         "Total": str(now),
-        "Time": total_time,
+        "Time": round(total_time),
         "Angle_stand_avg": Average(angle_stand),
         "Angle_sit_avg": Average(angle_sit),
     },
     ignore_index=True,
 )
 
+
+gc = gspread.service_account(filename='./secret/secret_new.json')
+sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1US-cmh4EL_Kps9dNcOT2y1YFls1dWui3ag7ZlEzr1V4/edit#gid=0')
+worksheet = sh.get_worksheet(0)
+worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+
+
 st.dataframe(df)
 df.to_csv("data.csv")
 
 
-
-# Added Gspread
-# Connect
-# Join VLookup
-# Go Run
-# Dashboard
-# Added GDrive
