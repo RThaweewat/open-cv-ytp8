@@ -92,7 +92,6 @@ with mp_pose.Pose(min_detection_confidence=0.5, min_tracking_confidence=0.5) as 
         results = pose.process(image)
 
         image.flags.writeable = True
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
         image_height, image_width, _ = image.shape
         image = cv2.resize(image, (int(image_width * (480 / image_height)), 480))
@@ -239,13 +238,14 @@ df = df.append(
     },
     ignore_index=True,
 )
+df = df.fillna('NaN')
 
 
 gc = gspread.service_account(filename='./secret/secret_new.json')
 sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1US-cmh4EL_Kps9dNcOT2y1YFls1dWui3ag7ZlEzr1V4/edit#gid=0')
 worksheet = sh.get_worksheet(0)
 worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-
+print('Upload Completed')
 
 st.dataframe(df)
 df.to_csv("data.csv")
